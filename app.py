@@ -62,6 +62,7 @@ async def process_transaction(items: List[Item]):
             await bot.send_message(
                 chat_id=TELEGRAM_USER_ID,
                 text=message_view(item),
+                disable_notification=True,
             )
 
     return Response()
