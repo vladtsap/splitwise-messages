@@ -4,8 +4,6 @@ from typing import Optional, List
 
 from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.dispatcher.handler import CancelHandler
-from aiogram.dispatcher.middlewares import BaseMiddleware
 from envparse import env
 from fastapi import FastAPI, Response
 from pydantic import BaseModel
@@ -26,27 +24,7 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 app = FastAPI()
 
 
-class AccessMiddleware(BaseMiddleware):
-    def __init__(self, allowed_user_id: int):
-        self.allowed_user_id = allowed_user_id
-        super().__init__()
-
-    async def on_process_message(self, message: types.Message, _):
-        if message.from_user.id != self.allowed_user_id:
-            raise CancelHandler()
-
-
-dp.middleware.setup(AccessMiddleware(TELEGRAM_USER_ID))
-
-
-class UserInfo(BaseModel):
-    id: int
-    first_name: Optional[str]
-    last_name: Optional[str]
-
-
 class User(BaseModel):
-    user: UserInfo
     user_id: int
     paid_share: float
     owed_share: float
@@ -79,8 +57,8 @@ def message_view(item: Item) -> str:
             break
 
     result = \
-        f'🤑 <b>{owed}</b> — {item.description}\n' \
-        f'💸 {item.cost} {item.currency}\n' \
+        f'🤑 <b>{owed:,.2f} → {item.description}</b>\n' \
+        f'💸 {item.cost:,.2f} {item.currency}\n' \
         f'🕑 {item.date.astimezone(timezone("Europe/Kiev")).strftime("%d.%m %H:%M")}\n'
 
     return result
