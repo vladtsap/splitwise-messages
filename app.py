@@ -1,26 +1,17 @@
-import logging
 from datetime import datetime
 from typing import Optional, List
 
-from aiogram import Bot, Dispatcher, types
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram import Bot, types
 from envparse import env
 from fastapi import FastAPI, Response
 from pydantic import BaseModel
 from pytz import timezone
-
-logging.basicConfig(
-    format=u'[%(asctime)s] %(levelname)-8s %(message)s',
-    level=logging.INFO,
-)
 
 TELEGRAM_TOKEN = env.str("TELEGRAM_TOKEN")
 TELEGRAM_USER_ID = env.int("TELEGRAM_USER_ID")
 SPLITWISE_USER_ID = env.int("SPLITWISE_USER_ID")
 
 bot = Bot(token=TELEGRAM_TOKEN, parse_mode=types.ParseMode.HTML, validate_token=True)
-dp = Dispatcher(bot, storage=MemoryStorage())
-
 app = FastAPI()
 
 
