@@ -1,0 +1,5 @@
+from envparse import env
+
+TELEGRAM_TOKEN = env.str("TELEGRAM_TOKEN")
+TELEGRAM_USER_ID = env.int("TELEGRAM_USER_ID")
+SPLITWISE_USER_ID = env.int("SPLITWISE_USER_ID")
