@@ -3,6 +3,7 @@ from fastapi import APIRouter, Response
 import schemas
 from config import TELEGRAM_USER_ID, bot
 from db import save_transaction, get_db
+from keyboards import pin_inline
 
 router = APIRouter(
     prefix='/monobank',
@@ -17,6 +18,7 @@ async def new_transaction(webhook: schemas.Webhook):
         chat_id=TELEGRAM_USER_ID,
         text=webhook_transaction.message_view,
         disable_notification=True,
+        reply_markup=pin_inline,
     )
 
     transaction = schemas.Transaction.from_webhook(

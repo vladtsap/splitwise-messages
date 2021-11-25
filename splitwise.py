@@ -2,6 +2,7 @@ from typing import List
 
 from fastapi import APIRouter, Response
 
+from keyboards import pin_inline
 from config import TELEGRAM_USER_ID, bot
 from schemas import SplitwiseItem
 
@@ -18,6 +19,7 @@ async def process_transaction(items: List[SplitwiseItem]):
                 chat_id=TELEGRAM_USER_ID,
                 text=item.message_view,
                 disable_notification=True,
+                reply_markup=pin_inline,
             )
 
     return Response()
