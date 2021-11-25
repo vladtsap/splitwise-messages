@@ -3,6 +3,9 @@ from typing import Optional, List
 
 from fastapi_camelcase import CamelModel
 from pydantic import BaseModel
+from pytz import timezone
+
+from config import SPLITWISE_USER_ID
 
 
 class SplitwiseUser(BaseModel):
@@ -24,36 +27,24 @@ class SplitwiseItem(BaseModel):
     description: str
     friendship_id: Optional[int]
 
+    @property
+    def message_view(self) -> str:
+        owed = 0.
+        for user in self.users:
+            if user.user_id == SPLITWISE_USER_ID:
+                owed = user.owed_share
+                break
 
-class WebhookTransaction(CamelModel):
-    id: str
-    time: int
-    description: str
-    comment: Optional[str]
-    mcc: int
-    original_mcc: int
-    amount: int
-    operation_amount: int
-    currency_code: int
-    commission_rate: int
-    cashback_amount: int
-    balance: int
-
-
-class WebhookData(CamelModel):
-    account: str
-    statement_item: WebhookTransaction
+        result = (
+            f'🤑 <b>{owed:,.2f} → {self.description}</b>\n'
+            f'💸 {self.cost:,.2f} {self.currency}\n'
+            f'🕑 {self.date.astimezone(timezone("Europe/Kiev")).strftime("%d.%m %H:%M")}\n'
+            f'#сплітвайс'
+        )
+        return result
 
 
-class Webhook(BaseModel):
-    type: str
-    data: WebhookData
-
-
-class Transaction(BaseModel):
-    bank_id: str
-    message_id: int
-    chat_id: int
+class TransactionBase(CamelModel):
     time: int
     description: str
     comment: Optional[str]
@@ -66,6 +57,55 @@ class Transaction(BaseModel):
     cashback_amount: int
     balance: int
     custom_description: Optional[str]
+
+    @property
+    def message_view(self) -> str:
+        result = '🤑 ' if self.amount < 0 else '🍀 '
+        result += f'<b>{self.amount / 100}'
+        result += ' → ' if self.amount < 0 else ' ← '
+        result += f'{self.description}</b>\n'
+
+        if self.cashback_amount:
+            result += f'💫 кешбек: {self.cashback_amount / 100}\n'
+
+        if self.commission_rate:
+            result += f'🧨 комісія: {self.commission_rate / 100}\n'
+
+        result += f'🏦 залишок: {self.balance / 100}\n'
+
+        date = datetime.fromtimestamp(self.time)
+        result += f'🕑 {date.astimezone(timezone("Europe/Kiev")).strftime("%d.%m %H:%M")}\n'
+
+        if self.comment:
+            result += f'✏️ {self.comment}\n'
+
+        if self.custom_description:
+            result += f'🏷 {self.custom_description}\n'
+
+        return result
+
+
+class WebhookTransaction(TransactionBase):
+    id: str
+
+
+class WebhookData(CamelModel):
+    account: str
+    statement_item: WebhookTransaction
+
+
+class Webhook(BaseModel):
+    type: str
+    data: WebhookData
+
+
+class Transaction(TransactionBase):
+    bank_id: str
+    message_id: int
+    chat_id: int
+
+    class Config:
+        orm_mode = True
 
     @classmethod
     def from_webhook(

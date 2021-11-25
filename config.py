@@ -1,3 +1,6 @@
+import logging
+
+from aiogram import Bot, types, Dispatcher
 from envparse import env
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -13,3 +16,11 @@ engine = create_engine(
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
+
+bot = Bot(token=TELEGRAM_TOKEN, parse_mode=types.ParseMode.HTML, validate_token=True)
+dp = Dispatcher(bot)
+
+logging.basicConfig(
+    format=u'[%(asctime)s] %(levelname)-8s %(message)s',
+    level=logging.INFO,
+)
