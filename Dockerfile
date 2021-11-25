@@ -1,12 +1,14 @@
-FROM python:3.9.2-slim
+FROM python:3.9.9-slim
 
 WORKDIR /app
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-RUN pip install --upgrade pip
+COPY ./requirements.txt /app/requirements.txt
+
+RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 
 COPY . /app
 
-RUN pip install -r requirements.txt
+ENV PYTHONPATH "${PYTHONPATH}:/app"
