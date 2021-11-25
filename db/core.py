@@ -2,10 +2,12 @@ from contextlib import contextmanager
 
 from sqlalchemy.orm import Session
 
-import models
-import schemas
+from db import (
+    models,
+    schemas,
+    exceptions,
+)
 from config import SessionLocal
-from exceptions import TransactionNotFound
 
 
 @contextmanager
@@ -26,7 +28,7 @@ def get_db_transaction(db: Session, message_id: int, chat_id: int) -> models.Tra
     ).first()
 
     if not db_transaction:
-        raise TransactionNotFound()
+        raise exceptions.TransactionNotFound()
 
     return db_transaction
 

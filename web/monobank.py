@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Response
 
-import schemas
+from db import schemas
 from config import TELEGRAM_USER_ID, bot
-from db import save_transaction, get_db
-from keyboards import pin_inline
+from db.core import save_transaction, get_db
+from bot.keyboards import pin_inline
 
 router = APIRouter(
     prefix='/monobank',

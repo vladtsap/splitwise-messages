@@ -1,7 +1,9 @@
 from fastapi import FastAPI, Response
 
-import monobank
-import splitwise
+from web import (
+    monobank,
+    splitwise,
+)
 from config import engine, Base
 
 app = FastAPI()

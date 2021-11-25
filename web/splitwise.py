@@ -2,9 +2,9 @@ from typing import List
 
 from fastapi import APIRouter, Response
 
-from keyboards import pin_inline
+from bot.keyboards import pin_inline
 from config import TELEGRAM_USER_ID, bot
-from schemas import SplitwiseItem
+from db.schemas import SplitwiseItem
 
 router = APIRouter(
     prefix='/splitwise',

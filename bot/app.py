@@ -5,8 +5,8 @@ from aiogram.utils import executor
 from aiogram.utils.exceptions import MessageNotModified
 
 from config import dp, bot
-from db import get_transaction, get_db, update_transaction
-from exceptions import TransactionNotFound
+from db.core import get_transaction, get_db, update_transaction
+from db.exceptions import TransactionNotFound
 from keyboards import pin_inline, unpin_inline
 
 NEW_LINE = '\n'
