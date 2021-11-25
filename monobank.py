@@ -39,6 +39,9 @@ def message_view(transaction: schemas.WebhookTransaction) -> str:
     date = datetime.datetime.fromtimestamp(transaction.time)
     result += f'🕑 {date.astimezone(timezone("Europe/Kiev")).strftime("%d.%m %H:%M")}\n'
 
+    if transaction.comment:
+        result += f'✏️ {transaction.comment}\n'
+
     return result
 
 
