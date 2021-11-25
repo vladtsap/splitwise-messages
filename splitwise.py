@@ -22,7 +22,8 @@ def message_view(item: SplitwiseItem) -> str:
     result = \
         f'🤑 <b>{owed:,.2f} → {item.description}</b>\n' \
         f'💸 {item.cost:,.2f} {item.currency}\n' \
-        f'🕑 {item.date.astimezone(timezone("Europe/Kiev")).strftime("%d.%m %H:%M")}\n'
+        f'🕑 {item.date.astimezone(timezone("Europe/Kiev")).strftime("%d.%m %H:%M")}\n' \
+        f'#сплітвайс'
 
     return result
 

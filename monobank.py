@@ -1,6 +1,7 @@
 import datetime
 
 from fastapi import APIRouter, Response, Depends
+from pytz import timezone
 from sqlalchemy.orm import Session
 
 import schemas
@@ -36,7 +37,7 @@ def message_view(transaction: schemas.WebhookTransaction) -> str:
     result += f'🏦 залишок: {transaction.balance / 100}\n'
 
     date = datetime.datetime.fromtimestamp(transaction.time)
-    result += f'🕑 {date.strftime("%d.%m %H:%M")}\n'
+    result += f'🕑 {date.astimezone(timezone("Europe/Kiev")).strftime("%d.%m %H:%M")}\n'
 
     return result
 
