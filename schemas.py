@@ -77,7 +77,7 @@ class Transaction(BaseModel):
             message_id=message_id,
             chat_id=chat_id,
             time=webhook_transaction.time,
-            description=webhook_transaction.description,
+            description=webhook_transaction.description.replace('\n', ' '),
             comment=webhook_transaction.comment,
             mcc=webhook_transaction.mcc,
             original_mcc=webhook_transaction.original_mcc,
