@@ -136,3 +136,22 @@ class Transaction(TransactionBase):
             balance=webhook_transaction.balance,
             custom_description=custom_description,
         )
+
+
+class ManualTransaction(TransactionBase):
+    @classmethod
+    def from_user(
+            cls, amount: float, description: str = None,
+    ):
+        return cls(
+            time=0,
+            description=description or '',
+            mcc=0,
+            original_mcc=0,
+            amount=int(amount * 100),
+            operation_amount=int(amount * 100),
+            currency_code=0,
+            commission_rate=0,
+            cashback_amount=0,
+            balance=0,
+        )
