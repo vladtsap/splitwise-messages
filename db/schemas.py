@@ -60,24 +60,21 @@ class TransactionBase(CamelModel):
 
     @property
     def message_view(self) -> str:
-        result = '🤑 ' if self.amount < 0 else '🍀 '
+        result = '🧨 ' if self.amount < 0 else '🍀 '
         result += f'<b>{self.amount / 100}'
         result += ' → ' if self.amount < 0 else ' ← '
         result += f'{self.description}</b>\n'
 
         if self.cashback_amount:
-            result += f'💫 кешбек: {self.cashback_amount / 100}\n'
+            result += f'кешбек: {self.cashback_amount / 100}\n'
 
         if self.commission_rate:
-            result += f'🧨 комісія: {self.commission_rate / 100}\n'
+            result += f'комісія: {self.commission_rate / 100}\n'
 
-        result += f'🏦 залишок: {self.balance / 100}\n'
-
-        date = datetime.fromtimestamp(self.time)
-        result += f'🕑 {date.astimezone(timezone("Europe/Kiev")).strftime("%d.%m %H:%M")}\n'
+        result += f'залишок: {self.balance / 100}\n'
 
         if self.comment:
-            result += f'✏️ {self.comment}\n'
+            result += f'коментар: {self.comment}\n'
 
         if self.custom_description:
             result += f'🏷 {self.custom_description}\n'
