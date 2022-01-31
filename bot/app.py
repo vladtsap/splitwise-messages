@@ -58,6 +58,11 @@ async def manual_transaction(message: Message, regexp: Match[str]):
         description=regexp[4],
     )
 
+    await bot.delete_message(
+        chat_id=message.chat.id,
+        message_id=message.message_id,
+    )
+
     await bot.send_message(
         chat_id=TELEGRAM_USER_ID,
         text=transaction.message_view,
