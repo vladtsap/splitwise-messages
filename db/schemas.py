@@ -1,11 +1,19 @@
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Union
 
 from fastapi_camelcase import CamelModel
 from pydantic import BaseModel
 from pytz import timezone
 
 from config import SPLITWISE_USER_ID
+
+
+def format_amount(amount: Union[int, float]) -> str:
+    return f'{amount:,.2f}'
+
+
+def format_transaction_amount(transaction_amount: int) -> str:
+    return format_amount(transaction_amount / 100)
 
 
 class SplitwiseUser(BaseModel):
@@ -36,8 +44,8 @@ class SplitwiseItem(BaseModel):
                 break
 
         result = (
-            f'🤑 <b>{owed:,.2f} → {self.description}</b>\n'
-            f'💸 {self.cost:,.2f} {self.currency}\n'
+            f'🤑 <b>{format_amount(owed)} → {self.description}</b>\n'
+            f'💸 {format_amount(self.cost)} {self.currency}\n'
             f'🕑 {self.date.astimezone(timezone("Europe/Kiev")).strftime("%d.%m %H:%M")}\n'
             f'#сплітвайс'
         )
@@ -60,24 +68,26 @@ class TransactionBase(CamelModel):
 
     @property
     def message_view(self) -> str:
-        result = '🧨 ' if self.amount < 0 else '🍀 '
-        result += f'<b>{self.amount / 100}'
-        result += ' → ' if self.amount < 0 else ' ← '
-        result += f'{self.description}</b>\n'
+        result = ''
+
+        if self.amount < 0:
+            result += f'🧨 <b>{format_transaction_amount(self.amount)} → {self.description}</b>\n\n'
+        else:
+            result += f'🍀 <b>{format_transaction_amount(self.amount)} ← {self.description}</b>\n\n'
 
         if self.cashback_amount:
-            result += f'кешбек: {self.cashback_amount / 100}\n'
+            result += f'кешбек: {format_transaction_amount(self.cashback_amount)}\n'
 
         if self.commission_rate:
-            result += f'комісія: {self.commission_rate / 100}\n'
+            result += f'комісія: {format_transaction_amount(self.commission_rate)}\n'
 
-        result += f'залишок: {self.balance / 100}\n'
+        result += f'залишок: {format_transaction_amount(self.balance)}\n'
 
         if self.comment:
             result += f'коментар: {self.comment}\n'
 
         if self.custom_description:
-            result += f'🏷 {self.custom_description}\n'
+            result += f'\n🏷 {self.custom_description}\n'
 
         return result
 
