@@ -1,12 +1,14 @@
 import logging
+from typing import Match
 
 from aiogram.types import Message, Update, CallbackQuery, ContentTypes
 from aiogram.utils import executor
 from aiogram.utils.exceptions import MessageNotModified
 
-from config import dp, bot
+from config import dp, bot, TELEGRAM_USER_ID
 from db.core import get_transaction, get_db, update_transaction
 from db.exceptions import TransactionNotFound
+from db.schemas import ManualTransaction
 from keyboards import pin_inline, unpin_inline
 
 NEW_LINE = '\n'
@@ -49,6 +51,21 @@ async def reply_handler(message: Message):
     )
 
 
+@dp.message_handler(regexp=r'^((-|\+)\d+.?\d)( (.*))?')
+async def manual_transaction(message: Message, regexp: Match[str]):
+    transaction = ManualTransaction.from_user(
+        amount=float(regexp[1]),
+        description=regexp[4],
+    )
+
+    await bot.send_message(
+        chat_id=TELEGRAM_USER_ID,
+        text=transaction.message_view,
+        disable_notification=True,
+        reply_markup=pin_inline,
+    )
+
+
 @dp.message_handler()
 async def keep_chat_empty(message: Message):
     await bot.delete_message(
@@ -76,6 +93,12 @@ async def pin_message(query: CallbackQuery):
 
 @dp.callback_query_handler(text='unpin')
 async def unpin_message(query: CallbackQuery):
+    await bot.pin_chat_message(
+        chat_id=query.message.chat.id,
+        message_id=query.message.message_id,
+        disable_notification=True,
+    )
+
     await bot.unpin_chat_message(
         chat_id=query.message.chat.id,
         message_id=query.message.message_id,
