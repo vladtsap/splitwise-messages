@@ -76,6 +76,12 @@ async def pin_message(query: CallbackQuery):
 
 @dp.callback_query_handler(text='unpin')
 async def unpin_message(query: CallbackQuery):
+    await bot.pin_chat_message(
+        chat_id=query.message.chat.id,
+        message_id=query.message.message_id,
+        disable_notification=True,
+    )
+
     await bot.unpin_chat_message(
         chat_id=query.message.chat.id,
         message_id=query.message.message_id,
