@@ -7,6 +7,7 @@ class Transaction(Base):
     __tablename__ = "transactions"
 
     id = Column(Integer, primary_key=True, index=True)
+    account_id = Column(String, nullable=True)
     bank_id = Column(String)
     message_id = Column(Integer, index=True)
     chat_id = Column(Integer, index=True)
