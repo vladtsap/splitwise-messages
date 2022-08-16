@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker
 TELEGRAM_TOKEN = env.str('TELEGRAM_TOKEN')
 TELEGRAM_USER_ID = env.int('TELEGRAM_USER_ID')
 SPLITWISE_USER_ID = env.int('SPLITWISE_USER_ID')
+NOTION_SECRET = env.str('NOTION_SECRET')
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///data/db.sqlite3"
 engine = create_engine(
