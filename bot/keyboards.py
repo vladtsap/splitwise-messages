@@ -22,7 +22,7 @@ def notion_button(page_id: str) -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    'link to notion',
+                    '🧱 link to notion',
                     url=f'https://www.notion.so/{page_id}',
                 )
             ]

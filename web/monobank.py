@@ -1,13 +1,21 @@
+import asyncio
+import logging
+from datetime import datetime
+
 from fastapi import APIRouter, Response
+from pytz import timezone
+import requests
 
 from db import schemas
-from config import TELEGRAM_USER_ID, bot
+from config import TELEGRAM_USER_ID, bot, NOTION_SECRET
 from db.core import save_transaction, get_db
-from bot.keyboards import pin_inline
+from bot.keyboards import notion_button
 
 router = APIRouter(
     prefix='/monobank',
 )
+
+logger = logging.getLogger(__name__)
 
 
 async def save_to_notion(transaction: schemas.Transaction):
@@ -40,7 +48,7 @@ async def save_to_notion(transaction: schemas.Transaction):
                 "rich_text": [
                     {
                         "text": {
-                            "content": transaction.comment
+                            "content": transaction.comment or ''
                         }
                     }
                 ]
@@ -49,7 +57,7 @@ async def save_to_notion(transaction: schemas.Transaction):
                 "rich_text": [
                     {
                         "text": {
-                            "content": transaction.custom_description
+                            "content": transaction.custom_description or ''
                         }
                     }
                 ]
@@ -75,10 +83,10 @@ async def save_to_notion(transaction: schemas.Transaction):
                 "number": transaction.original_mcc
             },
             "Commission": {
-                "number": transaction.commission_rate / 100 if transaction.commission_rate else None
+                "number": transaction.commission_rate / 100
             },
             "Cashback": {
-                "number": transaction.cashback_amount / 100 if transaction.cashback_amount else None
+                "number": transaction.cashback_amount / 100
             },
             "Balance": {
                 "number": transaction.balance / 100
@@ -99,13 +107,16 @@ async def save_to_notion(transaction: schemas.Transaction):
         headers=headers,
     )
 
-    page_id = response.json()['id']
-
-    await bot.edit_message_reply_markup(
-        chat_id=transaction.chat_id,
-        message_id=transaction.message_id,
-        reply_markup=notion_button(page_id),
-    )
+    try:
+        page_id = response.json()['id'].replace('-', '')
+    except KeyError:
+        logger.error(f'KEY ERROR. RESPONSE: {response.json()}')
+    else:
+        await bot.edit_message_reply_markup(
+            chat_id=transaction.chat_id,
+            message_id=transaction.message_id,
+            reply_markup=notion_button(page_id),
+        )
 
 
 @router.post('')
@@ -116,7 +127,6 @@ async def new_transaction(webhook: schemas.Webhook):
         chat_id=TELEGRAM_USER_ID,
         text=webhook_transaction.message_view,
         disable_notification=True,
-        reply_markup=pin_inline,
     )
 
     transaction = schemas.Transaction.from_webhook(
@@ -124,6 +134,8 @@ async def new_transaction(webhook: schemas.Webhook):
         message_id=message.message_id,
         chat_id=message.chat.id,
     )
+
+    asyncio.create_task(save_to_notion(transaction))
 
     with get_db() as db:
         save_transaction(db=db, transaction=transaction)
