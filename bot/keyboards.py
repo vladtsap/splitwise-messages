@@ -15,3 +15,17 @@ unpin_inline = InlineKeyboardMarkup(
         ]
     ]
 )
+
+
+def notion_button(page_id: str) -> InlineKeyboardMarkup:
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    'link to notion',
+                    url=f'https://www.notion.so/{page_id}',
+                )
+            ]
+        ]
+    )
+    return keyboard
